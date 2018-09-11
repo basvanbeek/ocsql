@@ -64,6 +64,16 @@ var AllTraceOptions = TraceOptions{
 	QueryParams:  true,
 }
 
+// WithNoTraceOptions disables all available trace options.
+func WithNoTraceOptions() TraceOption {
+	return func(o *TraceOptions) {
+		*o = NoTraceOptions
+	}
+}
+
+// NoTraceOptions has all tracing options disabled.
+var NoTraceOptions = TraceOptions{}
+
 // WithOptions sets our ocsql tracing middleware options through a single
 // TraceOptions object.
 func WithOptions(options TraceOptions) TraceOption {
