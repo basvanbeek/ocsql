@@ -723,7 +723,7 @@ func setSpanStatus(span *trace.Span, err error) {
 		status.Code = trace.StatusCodeDeadlineExceeded
 	case sql.ErrNoRows:
 		status.Code = trace.StatusCodeNotFound
-	case sql.ErrTxDone, sql.ErrConnDone:
+	case sql.ErrTxDone, ErrConnDone:
 		status.Code = trace.StatusCodeFailedPrecondition
 	default:
 		status.Code = trace.StatusCodeUnknown

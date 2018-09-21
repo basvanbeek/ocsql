@@ -4,8 +4,11 @@ package ocsql
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 )
+
+var ErrConnDone = sql.ErrConnDone
 
 // ocDriver implements driver.Driver
 type ocDriver struct {

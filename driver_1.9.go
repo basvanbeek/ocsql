@@ -2,7 +2,12 @@
 
 package ocsql
 
-import "database/sql/driver"
+import (
+	"database/sql"
+	"database/sql/driver"
+)
+
+var ErrConnDone = sql.ErrConnDone
 
 // ocDriver implements driver.Driver
 type ocDriver struct {

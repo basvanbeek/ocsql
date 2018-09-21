@@ -2,7 +2,13 @@
 
 package ocsql
 
-import "database/sql/driver"
+import (
+	"database/sql/driver"
+	"errors"
+)
+
+// Dummy error for setSpanStatus (does exist as sql.ErrConnDone in 1.9+)
+var ErrConnDone = errors.New("database/sql: connection is already closed")
 
 // ocDriver implements driver.Driver
 type ocDriver struct {
