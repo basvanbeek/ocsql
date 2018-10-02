@@ -25,11 +25,10 @@ var (
 	attrDeprecated     = trace.StringAttribute("ocsql.warning", "database driver uses deprecated features")
 
 	// Compile time assertions
-	_ driver.Driver        = &ocDriver{}
-	_ driver.DriverContext = &ocDriver{}
-	_ connTx               = &ocConn{}
-	_ driver.Result        = &ocResult{}
-	_ driver.Rows          = &ocRows{}
+	_ driver.Driver = &ocDriver{}
+	_ connTx        = &ocConn{}
+	_ driver.Result = &ocResult{}
+	_ driver.Rows   = &ocRows{}
 )
 
 // Register initializes and registers our ocsql wrapped database driver
