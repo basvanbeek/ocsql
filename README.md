@@ -226,3 +226,37 @@ func (s *svc) GetDevice(ctx context.Context, id int) (*Device, error) {
     return device
 }
 ```
+
+With context you can also expose more relevant span names:
+
+```go
+	// Define a function to build meaningful span name from context
+	formatSpanName := func(ctx context.Context, baseName string) string {
+		ctxName := ctx.Value("txName")
+		if txName, ok := ctxName.(string); ok {
+			return fmt.Sprintf("%s:%s", txName, baseName)
+		}
+		return baseName
+	}
+
+	// Register our ocsql wrapper for the provided Postgres driver.
+	driverName, err := ocsql.Register("postgres", ocsql.WithAllTraceOptions(),
+		ocsql.WithFormatSpanNameFunc(formatSpanName),
+	)
+	if err != nil {
+		...
+	}
+
+	// Connect to a Postgres database using the ocsql driver wrapper.
+	db, err := sql.Open(driverName, "postgres://localhost:5432/my_database")
+	if err != nil {
+		...
+	}
+
+
+	// Add relevant information to context
+	ctx := context.WithValue(context.Background(), "txName", "orderCreation")
+
+	// Use context with database
+	db.ExecContext(ctx, "INSERT INTO order ...")
+```

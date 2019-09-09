@@ -1,6 +1,8 @@
 package ocsql
 
 import (
+	"context"
+
 	"go.opencensus.io/trace"
 )
 
@@ -53,12 +55,26 @@ type TraceOptions struct {
 
 	// DisableErrSkip, if set to true, will suppress driver.ErrSkip errors in spans.
 	DisableErrSkip bool
+
+	// FormatSpanName holds the function to use for generating the span name
+	// from the information found in the context.
+	FormatSpanName func(ctx context.Context, baseName string) string
+}
+
+// formatSpanName decorates span name
+func (o *TraceOptions) formatSpanName(ctx context.Context, baseName string) string {
+	if o.FormatSpanName != nil {
+		return o.FormatSpanName(ctx, baseName)
+	}
+	return baseName
 }
 
 // WithAllTraceOptions enables all available trace options.
 func WithAllTraceOptions() TraceOption {
 	return func(o *TraceOptions) {
+		f := o.FormatSpanName
 		*o = AllTraceOptions
+		o.FormatSpanName = f
 	}
 }
 
@@ -164,5 +180,13 @@ func WithDefaultAttributes(attrs ...trace.Attribute) TraceOption {
 func WithDisableErrSkip(b bool) TraceOption {
 	return func(o *TraceOptions) {
 		o.DisableErrSkip = b
+	}
+}
+
+// WithFormatSpanNameFunc enables custom span names, built with information from the context.
+// When context is not available context.Background() is used.
+func WithFormatSpanNameFunc(f func(ctx context.Context, baseName string) string) TraceOption {
+	return func(o *TraceOptions) {
+		o.FormatSpanName = f
 	}
 }
