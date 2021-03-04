@@ -153,10 +153,7 @@ func (c ocConn) Ping(ctx context.Context) (err error) {
 
 	if c.options.Ping && (c.options.AllowRoot || trace.FromContext(ctx) != nil) {
 		var span *trace.Span
-		spanName := "sql.ping"
-		if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
-			spanName = c.options.FormatSpanName(ctx)
-		}
+		spanName := c.getSpanName(ctx, "sql:ping")
 		ctx, span = trace.StartSpan(ctx, spanName,
 			trace.WithSpanKind(trace.SpanKindClient),
 			trace.WithSampler(c.options.Sampler),
@@ -246,10 +243,7 @@ func (c ocConn) ExecContext(ctx context.Context, query string, args []driver.Nam
 		}
 
 		var span *trace.Span
-		spanName := "sql.exec"
-		if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
-			spanName = c.options.FormatSpanName(ctx)
-		}
+		spanName := c.getSpanName(ctx, "sql:exec")
 		if parentSpan == nil {
 			ctx, span = trace.StartSpan(ctx, spanName,
 				trace.WithSpanKind(trace.SpanKindClient),
@@ -350,10 +344,7 @@ func (c ocConn) QueryContext(ctx context.Context, query string, args []driver.Na
 		}
 
 		var span *trace.Span
-		spanName := "sql.query"
-		if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
-			spanName = c.options.FormatSpanName(ctx)
-		}
+		spanName := c.getSpanName(ctx, "sql:query")
 		if parentSpan == nil {
 			ctx, span = trace.StartSpan(ctx, spanName,
 				trace.WithSpanKind(trace.SpanKindClient),
@@ -443,10 +434,7 @@ func (c *ocConn) PrepareContext(ctx context.Context, query string) (stmt driver.
 	}()
 
 	var span *trace.Span
-	spanName := "sql.prepare"
-	if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
-		spanName = c.options.FormatSpanName(ctx)
-	}
+	spanName := c.getSpanName(ctx, "sql:prepare")
 	attrs := append([]trace.Attribute(nil), c.options.DefaultAttributes...)
 	if c.options.AllowRoot || trace.FromContext(ctx) != nil {
 		ctx, span = trace.StartSpan(ctx, spanName,
@@ -495,10 +483,7 @@ func (c *ocConn) BeginTx(ctx context.Context, opts driver.TxOptions) (tx driver.
 	}
 
 	var span *trace.Span
-	spanName := "sql.begin_transaction"
-	if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
-		spanName = c.options.FormatSpanName(ctx)
-	}
+	spanName := c.getSpanName(ctx, "sql:begin_transaction")
 	attrs := append([]trace.Attribute(nil), c.options.DefaultAttributes...)
 
 	if ctx == nil || ctx == context.TODO() {
@@ -1093,4 +1078,16 @@ func setSpanStatus(span *trace.Span, opts TraceOptions, err error) {
 	}
 	status.Message = err.Error()
 	span.SetStatus(status)
+}
+
+func (c ocConn) getSpanName(ctx context.Context, defaultName string) (spanName string) {
+	if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
+		spanName = c.options.FormatSpanName(ctx)
+	}
+
+	if spanName == "" {
+		spanName = defaultName
+	}
+
+	return spanName
 }
