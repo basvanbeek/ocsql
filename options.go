@@ -195,3 +195,10 @@ func WithInstanceName(instanceName string) TraceOption {
 		o.InstanceName = instanceName
 	}
 }
+
+// WithFormatSpanName sets the FormatSpanName func
+func WithFormatSpanName(spanFunc func(context.Context) string) TraceOption {
+	return func(o *TraceOptions) {
+		o.FormatSpanName = spanFunc
+	}
+}
