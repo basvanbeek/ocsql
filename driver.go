@@ -1082,7 +1082,7 @@ func setSpanStatus(span *trace.Span, opts TraceOptions, err error) {
 
 func (c ocConn) getSpanName(ctx context.Context, defaultName string) (spanName string) {
 	if c.options.FormatSpanName != nil && c.options.FormatSpanName(ctx) != "" {
-		spanName = c.options.FormatSpanName(ctx)
+		spanName = fmt.Sprint(defaultName, ":", c.options.FormatSpanName(ctx))
 	}
 
 	if spanName == "" {
